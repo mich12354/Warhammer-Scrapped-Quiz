@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warhammer: The Horus Heresy – Choose your legion</title>
+<style>
+:root{--fg:#f3efe7;--brown:#a07c52;--brown-d:#4a3a28}
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;color:var(--fg);font-family:Georgia,"Times New Roman",serif}
+body{min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;display:flex;flex-direction:column;background:radial-gradient(ellipse at 70% 30%,var(--tint,#2a1a14),#000 75%)}
+@media(min-width:1024px){main{flex-direction:row}}
+.side{padding:2rem 2.5rem;text-align:center;background:rgba(0,0,0,.72);display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2rem}
+@media(min-width:1024px){.side{width:40%;max-width:610px;min-height:100vh}}
+.top{align-self:flex-start;min-height:1.5rem}
+.logo{color:var(--brown);letter-spacing:.12em;line-height:1.3}.logo b{display:block;font-size:2rem;letter-spacing:.06em;color:var(--fg);font-weight:400}
+.ctx{margin:0 0 1.5rem;font-size:1.1rem;max-width:30rem}
+h1{font-weight:400;color:var(--brown);font-size:clamp(1.9rem,3.4vw,2.75rem);line-height:1.15;margin:0}
+.dots{display:flex;align-items:center;border-block:1px solid var(--brown);padding:1.25rem .5rem;margin-top:1.5rem}
+.dots button{all:unset;display:block;position:relative;height:3px;width:3.5rem;background:var(--brown)}
+.dots button:last-child{width:0}
+.dots button::before{content:"";position:absolute;left:-5px;top:-3.5px;width:10px;height:10px;border-radius:50%;background:var(--brown)}
+.dots .future,.dots .future::before{background:var(--brown-d)}
+.dots .now::before{outline:2px solid var(--fg);outline-offset:3px}
+.dots button:not(.future){cursor:pointer}
+.answers{flex:1;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2.5rem;padding:2.5rem 1.5rem}
+.answer{all:unset;cursor:pointer;width:min(275px,80vw);text-align:center}
+.answer:focus-visible .frame,.btn:focus-visible,.link:focus-visible{outline:2px solid var(--fg);outline-offset:4px}
+.frame{aspect-ratio:1;border:2px solid var(--brown-d);display:flex;align-items:center;justify-content:center;font-size:4.5rem;color:var(--brown);background:linear-gradient(160deg,var(--tint,#2a1a14),#000);position:relative;transition:border-color .2s,color .2s}
+.answer:hover .frame{border-color:var(--fg);color:var(--fg)}
+.frame::before,.frame::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--brown);background:#000}
+.frame::before{top:-7px;left:-7px}.frame::after{bottom:-7px;right:-7px}
+.label{margin-top:1.25rem;font-size:1.2rem;line-height:1.35}
+.link{all:unset;cursor:pointer;color:var(--brown);font-size:1rem}.link:hover{color:var(--fg)}
+.res h2{font-weight:400;font-size:clamp(2.2rem,4.5vw,3.25rem);color:var(--brown);margin:.5rem 0}
+.res em{display:block;margin:0 0 1.2rem;font-size:1.15rem}
+.res p{font-size:1.05rem;line-height:1.6;margin:0 0 1.5rem}
+.tag{font-size:.95rem;color:var(--brown)}
+.btn,select{display:block;width:100%;max-width:363px;margin:.6rem auto;padding:.9rem 1rem;border:1px solid var(--brown);background:transparent;color:var(--fg);font:inherit;font-size:1.05rem;text-align:center;cursor:pointer}
+.btn:hover{background:var(--brown);color:#000}
+select option{color:#000}
+.pane{margin:auto;max-width:34rem;padding:3rem 1.5rem;text-align:center}
+footer{padding:1.5rem 2.5rem;font-size:.75rem;color:#b9b2a5}footer p{margin:0;max-width:60rem}
+@media(prefers-reduced-motion:no-preference){.fade{animation:f .45s ease}@keyframes f{from{opacity:0}to{opacity:1}}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<footer><p>Fan-made offline version of the Horus Heresy legion quiz. Warhammer, Games Workshop, the Horus Heresy and all associated names are trademarks of Games Workshop Limited. All rights reserved by their owners.</p></footer>
+<script>
+"use strict";
+// Fully browser-side: no network, no server, no external files.
+const D={"Q":{"Q1":{"c":"Horus, the Warmaster, has communed with dark powers and torn the Imperium asunder.","t":"How do you view his actions?","r":{"Q1A1":"Disloyalty is unforgivable.","Q1A2":"Humanity must be freed of ignorance."}},"Q2":{"c":"Scans of the battlefield have detected enemy troop movement in an unexpected quarter.","t":"How do you respond?","r":{"Q2A1":"Scramble the infantry","Q2A2":"Call in armoured support"}},"Q3a":{"c":"The scans revealed a heavily defended bunker, and you’re tasked with storming it.","t":"What’s the best way to take it out?","r":{"Q3aA1":"Strike fast, close the gap, and minimise time in the line of fire.","Q3aA2":"Advance steadily, analysing their weak spots and fields of fire as you approach.","Q3aA3":"On second thought, maybe calling in tanks is the best way to minimise casualties."}},"Q3b":{"c":"It seems your enemy has left a vital position vulnerable to a counter-attack.","t":"How do you go about destroying it?","r":{"Q3bA1":"Launch covert operations to sever their supply lines and sow discord and confusion.","Q3bA2":"Advance, slow and steady – discipline and training will win the day.","Q3bA3":"Actually, it’d be better to scramble rapid response infantry units for a raid."}},"Q4a":{"c":"When the fighting gets up close and personal","t":"What’s your weapon of choice?","r":{"Q4aA1":"Power claws","Q4aA2":"Power sword"}},"Q4b":{"c":"When you move in for the kill","t":"Which trigger would you rather be pulling?","r":{"Q4bA1":"Bolter","Q4bA2":"Plasma Rifle"}},"Q4c":{"c":"Your heavy weapons cover you from afar.","t":"Which guns do you have trained on the enemy?","r":{"Q4cA1":"Heavy bolter","Q4cA2":"Missile launcher"}},"Q4d":{"c":"Reinforcements have arrived!","t":"What weaponry do they carry?","r":{"Q4dA1":"Plasma caliver","Q4dA2":"Volkite culverin"}},"Q5a":{"c":"You’ve just discovered the location of an enemy warlord.","t":"What’s your next move?","r":{"Q5aA1":"Send your fastest troops and light armour to strike directly at the heart of the enemy.","Q5aA2":"Display martial superiority by deftly decimating their troops, then challenge the leader to a duel.","Q5aA3":"Let them know you’ve arrived, and allow your reputation to draw them into an engagement on your terms."}},"Q5b":{"c":"The enemy army is massing for a major assault.","t":"How do you prepare?","r":{"Q5bA1":"Determine their most likely routes of attack and optimise your defenses accordingly.","Q5bA2":"Respond in kind, deploying massed ranks of troops and powerful wargear to blow them away."}},"Q5c":{"c":"Your foe is led by a charismatic cult, and will fight to the bitter end.","t":"How do you depose them?","r":{"Q5cA1":"Quietly collect intel without being detected, infiltrate their command structure, and assassinate the leaders.","Q5cA2":"Use esoteric firepower and tactical supremacy to exploit their weaknesses and overwhelm all opposition."}},"Q5d":{"c":"You’re fighting an army that’s well-equipped and commited to their cause.","t":"How do you take them on?","r":{"Q5dA1":"Stand strong – use willpower and weight of fire to break their resolve and burn them out of their bunkers.","Q5dA2":"Use your elite units to claim key strategic positions, trusting them to give you the advantage."}},"Q6a":{"c":"","t":"What’s your preferred strike vehicle?","r":{"Q6aA1":"Outrider bike","Q6aA2":"MKIC Deimos Pattern Rhino"}},"Q6b":{"c":"","t":"What are you riding into battle?","r":{"Q6bA1":"Legion Javelin Attack Speeder","Q6bA2":"MKIC Deimos Pattern Rhino"}},"Q6c":{"c":"","t":"What’s the best way to join the fight?","r":{"Q6cA1":"MKIC Deimos Pattern Rhino","Q6cA2":"Land Raider Proteus"}},"Q6d":{"c":"","t":"What will you use to guard your flanks?","r":{"Q6dA1":"Contemptor Dreadnought","Q6dA2":"Sicaran Omega Tank Destroyer"}},"Q6e":{"c":"","t":"In which vehicle do you advance?","r":{"Q6eA1":"MKIC Deimos Pattern Rhino","Q6eA2":"Land Raider Armoured Proteus"}},"Q6f":{"c":"","t":"What’s the best way to enhance your mobility?","r":{"Q6fA1":"Jump pack","Q6fA2":"Proteus Pattern Land Speeder"}},"Q6g":{"c":"","t":"What would you rather use to get your troops in position?","r":{"Q6gA1":"MKIC Deimos Pattern Rhino","Q6gA2":"Land Raider Proteus"}},"Q6h":{"c":"","t":"What do you want supporting your front lines?","r":{"Q6hA1":"Contemptor Dreadnought","Q6hA2":"Sicaran Battle Tank"}},"Q6i":{"c":"","t":"What do you want covering your advance?","r":{"Q6iA1":"Xiphon interceptor","Q6iA2":"Sicaran Omega Tank Destroyer"}},"Q7a":{"c":"","t":"Would you rather","r":{"Q7aA1":"Feel the wind on your face as you ride alongside your brothers on a Great Hunt.","Q7aA2":"Cut down anyone that stands between you and your foe in a berserker rage."}},"Q7b":{"c":"","t":"Would you rather","r":{"Q7bA1":"Embody the graceful fury of your angelic leader, leading by example.","Q7bA2":"Cut down your clumsy foes with astounding displays of deadly combat skill."}},"Q7c":{"c":"","t":"Would you rather","r":{"Q7cA1":"Unleash the noble beast within, embracing your feral nature in loyal service to a higher cause.","Q7cA2":"Terrify your enemies with unbridled brutality and teach everyone what happens if they cross you."}},"Q7d":{"c":"","t":"Would you rather","r":{"Q7dA1":"Stand proud atop your fortress walls, implacable in the face of your adversary.","Q7dA2":"Rely on the strength and resilience of heavy robots, massive artillery, and siege fighters."}},"Q7e":{"c":"","t":"Would you rather","r":{"Q7eA1":"Enhance your fighting capabilities with bionic limbs, high-tech weaponry, and rigid martial discipline","Q7eA2":"Inexorably advance in a cloud of toxic smog, no matter what the foe throws at you."}},"Q7f":{"c":"","t":"Would you rather","r":{"Q7fA1":"Stick to the shadows, waiting for the perfect moment to eliminate the enemy in a single strike.","Q7fA2":"Unpick your enemies from the inside out with spies, sabotage, and battlefield deception."}},"Q7g":{"c":"","t":"Would you rather","r":{"Q7gA1":"Wield a variety of specialised forces in pinpoint attacks, with  the right tactics for each mission.","Q7gA2":"Harness dangerous arcane energies to empower your forces beyond their natural capabilities."}},"Q7h":{"c":"","t":"Would you rather","r":{"Q7hA1":"Protect the weak and punish the wicked with courage, flames, and fearsome resolve.","Q7hA2":"Spread twisted doctrines to rouse your allies and subjugate your enemies."}},"Q7i":{"c":"","t":"Would you rather","r":{"Q7iA1":"Exemplify everything a Space Marine should aspire to, faithfully following the strictures of a noble code.","Q7iA2":"Fuel your skill at arms with unfettered ambition and show everyone what you’re capable of once free of your chains."}}},"L":{"1":{"n":"Dark Angels","s":"Loyalist","g":"“For the Lion!”","x":"The secretive Dark Angels were among the first Space Marines created by the Emperor. Led by the noble Primarch Lion El’Jonson, their ranks and titles owe much to knightly traditions."},"3":{"n":"Emperor’s Children","s":"Traitor","g":"“Perfection is a state of striving, not of being.”","x":"The Emperor’s Children and their primarch, Fulgrim, seek perfection in all things. Not content with being among the Great Crusade’s most skilled and graceful duellists, they also practice art and literature."},"4":{"n":"Iron Warriors","s":"Traitor","g":"“Iron within, iron without!”","x":"The Primarch Perturabo is a strategic mastermind, and his Iron Warriors expert siege breakers. Their specialism makes them bitter and determined, for they fight grinding, attritional wars while other Legions claim glory."},"5":{"n":"White Scars","s":"Loyalist","g":"“For the Khan and the Emperor!”","x":"The White Scars Legion stands ready to strike at a moment’s notice. Like their primarch, Jaghatai Khan, its warriors are reserved and controlled – and swift and furious in battle."},"6":{"n":"Space Wolves","s":"Loyalist","g":"“For Russ and the Allfather”","x":"The Space Wolves and their primarch, Leman Russ, are fiercely loyal. They fight with the fury of a winter storm, destroying the foes of Humanity with instinctive aggression and merciless savagery."},"7":{"n":"Imperial Fists","s":"Loyalist","g":"“These walls do not break.”","x":"The stoic Imperial Fists and their primarch, Rogal Dorn, are masters of siegecraft, using heavy armour and iron discipline to defend – or tear down – any objective."},"8":{"n":"Night Lords","s":"Traitor","g":"“Ave Dominus Nox!”","x":"Callous, cruel, and driven by a unique sense of justice, the Night Lords and their primarch, Konrad Curze, win wars through stealth and terror tactics as much as their skill at arms."},"9":{"n":"Blood Angels","s":"Loyalist","g":"“For the Emperor and Sanguinius!”","x":"Noble and angelic, but utterly vicious when roused – war is an act of art for the Blood Angels and the Primarch Sanguinius, and they boast one of the most impressive combat records of all the Legions."},"10":{"n":"Iron Hands","s":"Loyalist","g":"“The Flesh Is Weak!”","x":"The Iron Hands and their primarch, Ferrus Manus, are guided by cold efficiency and logic. With unyielding will, they unleash withering fusillades of artillery and bolter fire upon their foes."},"12":{"n":"World Eaters","s":"Traitor","g":"“Courage is fighting the kingdom which enslaves you.”","x":"The World Eaters and their primarch, Angron, are driven by a bottomless well of anger. Tormented by their agonising Butcher’s nails, the Legion constantly seeks conflict and values victory above all else."},"13":{"n":"Ultramarines","s":"Loyalist","g":"“Courage and honour!”","x":"The Ultramarines win wars with precision and perfect timing, as taught by the Primarch Roboute Guilliman. No matter the engagement, the Legion’s every move is planned and executed with fastidious efficiency."},"14":{"n":"Death Guard","s":"Traitor","g":"“Do not wallow in corruption. Control it.”","x":"Implacable, inexorable, as inevitable as death itself, the Death Guard grind down their foes through remorseless attrition, and follow their primarch, Mortarion, into nihilism and corruption."},"15":{"n":"Thousand Sons","s":"Traitor","g":"“Knowledge is power.”","x":"The Thousand Sons are led by their extraordinary Primarch, Magnus the Red – a pillar of psychic might. Masters of arcane arts, they value the pursuit of knowledge above all else."},"16":{"n":"Sons of Horus","s":"Traitor","g":"“Lupercal! For the Warmaster!”","x":"Boasting the greatest combat record of any of the Legions, the Sons of Horus have grown impatient, self-important, and ultimately traitorous, leading the rebellion against the Imperium in the name of their primarch."},"17":{"n":"Word Bearers","s":"Traitor","g":"“The Word is everything. Everything is the Word.”","x":"The Word Bearers and their ever-zealous primarch, Lorgar, searched for the truth of the galaxy. They found it in the Chaos Gods, who now grant the Legion otherworldly power in return for devotion."},"18":{"n":"Salamanders","s":"Loyalist","g":"“Into the fires of battle, unto the anvil of war!”","x":"The Salamanders believe in the strength of sacrifice. Their primarch, Vulkan, seeks to protect the citizenry of the young Imperium, and with flame and hammer his Legion cleanses the galaxy of greed and corruption."},"19":{"n":"Raven Guard","s":"Loyalist","g":"“Victorus Aut Mortis”","x":"The Raven Guard strike from the shadows. The Primarch Corvus Corax exemplifies the power of stealth and sabotage, and his Legion eschews vainglory in favor of certain victory."},"20":{"n":"Alpha Legion","s":"Traitor","g":"“I am Alpharius.”","x":"The Alpha Legion are masters of deception, their tactics labyrinthine and their methods inscrutable. The twin primarchs, Alpharius and Omegon, mingle among their warriors, encouraging them to ever-greater feats of subterfuge."}},"END":{"Q7aA1":5,"Q7aA2":12,"Q7bA1":9,"Q7bA2":3,"Q7cA1":6,"Q7cA2":8,"Q7dA1":7,"Q7dA2":4,"Q7eA1":10,"Q7eA2":14,"Q7fA1":19,"Q7fA2":20,"Q7gA1":1,"Q7gA2":15,"Q7hA1":18,"Q7hA2":17,"Q7iA1":13,"Q7iA2":16},"NEXT":{"Q1A1":"Q2","Q1A2":"Q2","Q2A1":"Q3a","Q2A2":"Q3b","Q3aA1":"Q4a","Q3aA2":"Q4b","Q3aA3":"Q4c","Q3bA1":"Q4d","Q3bA2":"Q4c","Q3bA3":"Q4a","Q4aA1":"Q5a","Q4aA2":"Q5a","Q4bA1":"Q5d","Q4bA2":"Q5c","Q4cA1":"Q5b","Q4cA2":"Q5b","Q4dA1":"Q5c","Q4dA2":"Q5d","Q5aA1":"Q6b","Q5aA2":"Q6f","Q5aA3":"Q6a","Q5bA1":"Q6d","Q5bA2":"Q6c","Q5cA1":"Q6i","Q5cA2":"Q6g","Q5dA1":"Q6h","Q5dA2":"Q6e","Q6aA1":"Q7a","Q6aA2":"Q7c","Q6bA1":"Q7f","Q6bA2":"Q7a","Q6cA1":"Q7i","Q6cA2":"Q7g","Q6dA1":"Q7e","Q6dA2":"Q7d","Q6eA1":"Q7h","Q6eA2":"Q7d","Q6fA1":"Q7b","Q6fA2":"Q7c","Q6gA1":"Q7i","Q6gA2":"Q7g","Q6hA1":"Q7e","Q6hA2":"Q7h","Q6iA1":"Q7f","Q6iA2":"Q7b"},"U":{"pre_text":"We’ve assigned you to the","share_text":"Share your legion with your friends:","legion_selection_text":"Disagree with your Legion assignment?","legion_dropdown_text":"Choose For Yourself","reset_quiz_text":"Restart the Selection Process","privacy_policy":"Privacy Policy","back":"Back","goto":"Go to question","share":"I’ve joined the {legion}. Take the quiz and discover your legion!"}};
+const TINTS=["#2a1511","#14202a","#1d1a2e","#2a1c0e","#102523","#251016","#1a1a1a"];
+const ROMAN=["I","II","III"];
+const app=document.getElementById("app");
+let path=[]; // answer ids chosen so far
+let pick=null; // legion chosen from the dropdown
+
+function load(){try{const s=JSON.parse(localStorage.getItem("hh_quiz")||"{}");if(Array.isArray(s.path))path=s.path.filter(a=>a in D.NEXT||a in D.END);pick=s.pick||null}catch(e){}}
+function save(){try{localStorage.setItem("hh_quiz",JSON.stringify({path,pick}))}catch(e){}}
+function el(t,a,...k){const e=document.createElement(t);for(const n in a||{}){if(n==="class")e.className=a[n];else if(n.startsWith("on"))e.addEventListener(n.slice(2),a[n]);else e.setAttribute(n,a[n])}e.append(...k);return e}
+function current(){ // question id, or null when finished
+  if(!path.length)return "Q1";
+  const last=path[path.length-1];
+  return last in D.END?null:D.NEXT[last];
+}
+function legionId(){return pick||(path.length&&D.END[path[path.length-1]])||null}
+function show(node){app.replaceChildren(...node);app.classList.remove("fade");void app.offsetWidth;app.classList.add("fade");const f=app.querySelector(".answer,.btn");if(f)f.focus({preventScroll:true});window.scrollTo(0,0)}
+function back(){if(pick){pick=null}else path.pop();save();render()}
+function goLevel(n){pick=null;path=path.slice(0,n-1);save();render()}
+function restart(){path=[];pick=null;save();render()}
+function logo(){return el("div",{class:"logo"},"WARHAMMER",el("b",null,"The Horus Heresy"))}
+function dots(level){
+  const w=el("div",{class:"dots"});
+  for(let n=1;n<=7;n++){
+    const b=el("button",{class:n>level?"future":n===level?"now":"","aria-label":D.U.goto+" "+n,onclick:()=>{if(n<=level)goLevel(n)}});
+    if(n>level)b.disabled=true;
+    w.append(b);
+  }
+  return w;
+}
+function backBtn(){return el("button",{class:"link",onclick:back},"← "+D.U.back)}
+function render(){
+  const q=current(),id=legionId();
+  if(id)return renderResult(id);
+  const Q=D.Q[q],level=+q[1];
+  document.documentElement.style.setProperty("--tint",TINTS[level-1]);
+  const side=el("div",{class:"side"},
+    el("div",{class:"top"},path.length?backBtn():""),logo(),
+    el("div",null,Q.c?el("p",{class:"ctx"},Q.c):"",el("h1",null,Q.t),dots(level)));
+  const answers=el("div",{class:"answers"});
+  Object.keys(Q.r).forEach((r,i)=>answers.append(el("button",{class:"answer",onclick:()=>{path.push(r);save();render()}},
+    el("div",{class:"frame","aria-hidden":"true"},ROMAN[i]),el("div",{class:"label"},Q.r[r]))));
+  show([side,answers]);
+}
+function renderResult(id){
+  document.documentElement.style.setProperty("--tint","#2a1a14");
+  const l=D.L[id];
+  const sel=el("select",{"aria-label":D.U.legion_selection_text,onchange:e=>{if(e.target.value){pick=e.target.value;save();render()}}},
+    el("option",{value:""},D.U.legion_dropdown_text));
+  Object.keys(D.L).forEach(k=>sel.append(el("option",{value:k},D.L[k].n)));
+  const copy=el("button",{class:"btn",onclick:async()=>{try{await navigator.clipboard.writeText(D.U.share.replace("{legion}",l.n));copy.textContent="Copied"}catch(e){copy.textContent=D.U.share.replace("{legion}",l.n)}}},D.U.share_text.replace(/:$/,""));
+  const side=el("div",{class:"side"},el("div",{class:"top"},backBtn()),logo(),
+    el("div",null,el("div",{class:"tag"},D.U.pre_text),el("h2",null,l.n),el("div",{class:"tag"},l.s),
+      el("p",null,l.x)));
+  const pane=el("div",{class:"pane res"},el("em",null,l.g),copy,
+    el("p",{class:"tag"},D.U.legion_selection_text),sel,el("button",{class:"btn",onclick:restart},D.U.reset_quiz_text));
+  show([side,pane]);
+}
+load();render();
+</script>
+</body>
+</html>
